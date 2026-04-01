@@ -1,0 +1,50 @@
+services:
+  db_service:
+    image: mysql:8.1.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: quicklaunch
+    ports:
+      - "3306:3306"
+    # healthcheck:
+    #   test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot --silent || exit 1"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 20
+    #   start_period: 90s
+    
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db_service
+    environment:
+      PMA_HOST: db_service
+
+  dashboard:
+    build:
+      context: ./Laravel
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    depends_on:
+       - db_service
+    environment:
+      # DB_HOST_DOCKER: db_service
+      DB_CONNECTION: mysql
+      DB_HOST: db_service
+      DB_PORT: 3306
+      DB_DATABASE: quicklaunch
+      DB_USERNAME: root
+      DB_PASSWORD: ""
+
+  # nodejs_backend:
+  #   build:
+  #     context: ./NodeJS_Backend/
+  #     dockerfile: Dockerfile
+  #   working_dir: /app
+  #   ports:
+  #     - "3000:3000"
