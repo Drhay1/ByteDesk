@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     nodejs \
     npm \
+    default-mysql-client \
  && docker-php-ext-install zip pdo_mysql \
  && rm -rf /var/lib/apt/lists/*
 
@@ -22,9 +23,12 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN npm install --force
 RUN npm run build
 
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 
 
